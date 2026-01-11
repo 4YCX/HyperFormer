@@ -248,7 +248,7 @@ tensorboard --logdir runs --port 6006
 
 ### CrossAttn (JViT) 结构
 
-![Architect](927a033b2ca2665bc63f888684f9c75b.png)
+![Architect](1.png)
 
 ### 关键组件
 
