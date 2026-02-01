@@ -379,7 +379,7 @@ python train.py \
 ```
 HyperFormer/
 ├── train.py           # 主训练脚本（推荐，支持 TensorBoard）
-├── visdom_main.py            # 主脚本（支持 Visdom 可视化）
+├── visdom_main.py     # 主脚本（支持 Visdom 可视化）
 ├── model_utils.py     # 模型工厂函数
 ├── datasets.py        # 数据集加载与处理
 ├── losses.py          # 损失函数定义
