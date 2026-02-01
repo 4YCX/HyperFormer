@@ -19,7 +19,7 @@ python main.py \
 """
 from __future__ import print_function, division
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 import time
 import numpy as np

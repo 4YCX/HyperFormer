@@ -9,7 +9,7 @@ import spectral
 import matplotlib.pyplot as plt
 from scipy import io, misc
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import re
 import torch
 
@@ -140,6 +140,15 @@ def display_lidar_data(img, vis):
     # send to visdom server
     vis.images([np.transpose(gray, (2, 0, 1))],
                opts={'caption': caption})
+
+def display_gt(gt, vis, caption=""):
+    """Display the ground truth data.
+        Args:
+            gt: 2D ground truth image
+        """
+    vis.images([np.transpose(gt, (2, 0, 1))],
+                opts={'caption': caption})
+    
 
 
 def explore_spectrums(img, complete_gt, class_names, vis,

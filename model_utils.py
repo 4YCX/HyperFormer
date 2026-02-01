@@ -22,6 +22,7 @@ from utils import grouper, sliding_window, count_sliding_window, camel_to_snake
 # from model.S2ESNet_Swin import S2ESNet_Swin
 # from model.S2ESNet_Swin_Pro import S2ESNet_Pro
 from Model.CrossAttn import JViT
+from Model.CroSSM import CSSM
 from Model.S2ENet import S2ENet
 from losses import Cross_fusion_CNN_Loss, EndNet_Loss
 
@@ -162,6 +163,59 @@ def get_model(name, **kwargs):
 
         # 你原来写 64，但 ViT 通常显存更吃紧，建议默认小一点
         kwargs.setdefault("batch_size", 128)   # 你 README 示例就是 6
+
+    elif name == "CSSM":
+        # -------------------------
+        # JViT (Transformer + Mamba self blocks) defaults
+        # -------------------------
+        kwargs.setdefault("patch_size", 7)
+        center_pixel = True
+
+        model = CSSM(
+            input_channels=n_bands,
+            input_channels2=n_bands2,
+            n_classes=n_classes,
+            patch_size=kwargs["patch_size"],
+        )
+
+        # optimizer defaults for ViT/Mamba-style models
+        lr = kwargs.setdefault("lr", 1e-3)
+        weight_decay = kwargs.setdefault("weight_decay", 1e-2)
+
+        optimizer_name = kwargs.setdefault("optimizer", "adamw").lower()
+        if optimizer_name == "adam":
+            optimizer = optim.Adam(model.parameters(), lr=lr)
+        else:
+            optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+
+        criterion = nn.CrossEntropyLoss(weight=kwargs["weights"])
+
+        # training defaults
+        epoch = kwargs.setdefault("epoch", 128)
+
+        # safer default batch size (CrossAttn still costs memory)
+        kwargs.setdefault("batch_size", 64)
+
+        # scheduler defaults (milestones adapt to epoch)
+        sched_name = kwargs.setdefault("scheduler_name", "multistep").lower()
+        if sched_name == "cosine":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch)
+        elif sched_name == "plateau":
+            scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=max(1, epoch // 6))
+        else:
+            # milestones: 60%, 80%, 90% of training
+            m1 = int(epoch * 0.6)
+            m2 = int(epoch * 0.8)
+            m3 = int(epoch * 0.9)
+            # ensure strictly increasing and within [1, epoch-1]
+            milestones = sorted(set([max(1, min(epoch - 1, m)) for m in [m1, m2, m3]]))
+            gamma = kwargs.setdefault("gamma", 0.1)
+            scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=milestones, gamma=gamma)
+
+        # store scheduler in kwargs if user didn't provide one
+        kwargs.setdefault("scheduler", scheduler)
+
+
     else:
         raise KeyError("{} model is unknown.".format(name))
 

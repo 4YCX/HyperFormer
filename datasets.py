@@ -4,7 +4,7 @@ This file contains the PyTorch dataset for multi-modal data and
 related helpers.
 """
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import spectral
 import numpy as np
 import torch

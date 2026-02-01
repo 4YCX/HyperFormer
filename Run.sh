@@ -1,9 +1,9 @@
 python train.py \
-    --dataset Berlin \
-    --model JViT \
+    --dataset Trento \
+    --model CSSM \
     --patch_size 7 \
-    --epoch 150 \
+    --epoch 225 \
     --lr 5e-3 \
     --batch_size 256 \
     --cuda 0 \
-    --flip_augmentation 
+    --flip_augmentation \
